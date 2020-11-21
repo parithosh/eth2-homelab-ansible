@@ -1,0 +1,6 @@
+- name: create directory for chaindata
+  file:
+    path: /chaindata
+    state: directory
+    mode: '777'
+

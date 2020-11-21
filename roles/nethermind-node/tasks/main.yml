@@ -1,0 +1,107 @@
+- name: Install nethermind dependencies
+  apt:
+    name: "{{ item }}"
+    state: latest
+    update_cache: yes
+  loop:
+    [
+        "libsnappy-dev",
+        "libc6-dev",
+        "libc6",
+        "unzip",
+        "moreutils",
+        "jq"
+    ]
+
+- name: create exporter group
+  group:
+    name: nethermind
+    state: present
+
+- name: create exporter user
+  user:
+    name: nethermind
+    state: present
+    group: nethermind
+    shell: "/sbin/nologin"
+
+- name: download nethermind
+  get_url:
+    url: "{{ client_download_url }}"
+    dest: /tmp/nethermind_{{ client_version }}.zip
+
+- name: create directory for chaindata
+  file:
+    path: /chaindata/nethermind
+    state: directory
+    mode: '777'
+
+- name: Stop nethermind service
+  ignore_errors: yes
+  systemd:
+    state: stopped
+    name: nethermind
+
+- name: extract nethermind
+  unarchive:
+    src: /tmp/nethermind_{{ client_version }}.zip
+    dest: /chaindata/nethermind
+    remote_src: yes
+    keep_newer: yes
+
+- name: copy systemd service
+  copy:
+    src: files/nethermind.service
+    dest: /etc/systemd/system/nethermind.service
+
+- name: "Enable JsonRPC in mainnet.cfg"
+  shell: jq '.JsonRpc.Enabled = true' /chaindata/nethermind/configs/mainnet.cfg | sponge /chaindata/nethermind/configs/mainnet.cfg
+
+- name: "Enable JsonRPC from host in mainnet.cfg"
+  shell: jq '.JsonRpc.Host = "0.0.0.0"' /chaindata/nethermind/configs/mainnet.cfg | sponge /chaindata/nethermind/configs/mainnet.cfg
+
+- name: "Change metrics name in mainnet.cfg"
+  shell: jq '.Metrics.NodeName = "proxmox-nethermind-01"' /chaindata/nethermind/configs/mainnet.cfg | sponge /chaindata/nethermind/configs/mainnet.cfg
+
+- name: "Enable metrics in mainnet.cfg"
+  shell: jq '.Metrics.Enabled = true' /chaindata/nethermind/configs/mainnet.cfg | sponge /chaindata/nethermind/configs/mainnet.cfg
+
+- name: "Enable DownloadReceiptsInFastSync in mainnet.cfg"
+  shell: jq '.Sync.DownloadReceiptsInFastSync = true' /chaindata/nethermind/configs/mainnet.cfg | sponge /chaindata/nethermind/configs/mainnet.cfg
+
+- name: "Enable fast sync in mainnet.cfg"
+  when: sync_mode is undefined or sync_mode == "fast"
+  shell: jq '.Sync |= . + {"FastSync":"true"}' /chaindata/nethermind/configs/mainnet.cfg | sponge /chaindata/nethermind/configs/mainnet.cfg
+
+#- name: "Enable beam sync in mainnet.cfg"
+#  when: sync_mode is defined and sync_mode == "beam"
+#  shell: jq '.Sync |= . + {"BeamSync":"true"}' /chaindata/nethermind/configs/mainnet.cfg | sponge /chaindata/nethermind/configs/mainnet.cfg
+-
+- name: Recursively change ownership of a directory
+  file:
+    path: /chaindata/nethermind/
+    state: directory
+    recurse: yes
+    owner: nethermind
+    group: nethermind
+
+- name: reload systemd
+  systemd:
+    daemon_reload: yes
+
+- name: enable nethermind
+  systemd:
+    name: nethermind
+    enabled: yes
+    masked: no
+
+- name: Stop nethermind service
+  systemd:
+    state: stopped
+    name: nethermind
+
+- name: Start nethermind service
+  systemd:
+    state: started
+    name: nethermind
+
