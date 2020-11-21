@@ -1,6 +1,7 @@
-# Ansible for Homelab
+# Ansible for Homelab and Eth2 tasks
 
-These ansible playbooks can be used to setup and maintain your homelab, aimed at ethereum related tasks.  
+These ansible playbooks can be used to setup and maintain your homelab. The playbooks will largely be aimed at eth2 
+tasks.  
 
 This repository contains an ansible playbook that can be used to perform the following:
 - Setup a nethermind node
@@ -16,3 +17,7 @@ This repository contains an ansible playbook that can be used to perform the fol
 - To confirm if its running fine, SSH into the machine check the playbook that was run
 
 ## Contributors welcome!
+
+If you like my work, feel free to toss me some eth.
+
+Ethereum address: 0x2628562A4fd5762D52CF43DE21bB925174C33085
