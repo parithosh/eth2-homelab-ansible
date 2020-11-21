@@ -6,6 +6,7 @@ This role contains an code that can be used to perform the following:
 
 ## Setup:
 - Add this role in a playbook
+- Edit the tasks, name to suit requirements
 - Run said playbook
 
 ## Caveats:
