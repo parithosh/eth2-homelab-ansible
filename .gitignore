@@ -1,0 +1,4 @@
+ansible.cfg
+.idea/
+inventory.ini
+homelab-ansible.iml
