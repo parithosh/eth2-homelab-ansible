@@ -66,12 +66,23 @@
 - name: "Enable metrics in mainnet.cfg"
   shell: jq '.Metrics.Enabled = true' /chaindata/nethermind/configs/mainnet.cfg | sponge /chaindata/nethermind/configs/mainnet.cfg
 
+- name: "Enable DownloadBodiesInFastSync in mainnet.cfg"
+  shell: jq '.Sync.DownloadBodiesInFastSync = true' /chaindata/nethermind/configs/mainnet.cfg | sponge /chaindata/nethermind/configs/mainnet.cfg
+
 - name: "Enable DownloadReceiptsInFastSync in mainnet.cfg"
   shell: jq '.Sync.DownloadReceiptsInFastSync = true' /chaindata/nethermind/configs/mainnet.cfg | sponge /chaindata/nethermind/configs/mainnet.cfg
 
 - name: "Enable fast sync in mainnet.cfg"
   when: sync_mode is undefined or sync_mode == "fast"
   shell: jq '.Sync |= . + {"FastSync":"true"}' /chaindata/nethermind/configs/mainnet.cfg | sponge /chaindata/nethermind/configs/mainnet.cfg
+
+- name: "Enable Sync.AncientBodiesBarrier in mainnet.cfg"
+  when: sync_mode is undefined or sync_mode == "fast"
+  shell: jq '.Sync |= . + {"Sync.AncientBodiesBarrier":"11052984"}' /chaindata/nethermind/configs/mainnet.cfg | sponge /chaindata/nethermind/configs/mainnet.cfg
+
+- name: "Enable Sync.AncientReceiptsBarrier in mainnet.cfg"
+  when: sync_mode is undefined or sync_mode == "fast"
+  shell: jq '.Sync |= . + {"Sync.AncientReceiptsBarrier":"11052984"}' /chaindata/nethermind/configs/mainnet.cfg | sponge /chaindata/nethermind/configs/mainnet.cfg
 
 #- name: "Enable beam sync in mainnet.cfg"
 #  when: sync_mode is defined and sync_mode == "beam"
