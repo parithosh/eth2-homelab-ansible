@@ -21,6 +21,3 @@ This repository contains an ansible playbook that can be used to perform the fol
 If you like my work, feel free to toss me some eth.
 
 Ethereum address: 0x2628562A4fd5762D52CF43DE21bB925174C33085
-
-
-
