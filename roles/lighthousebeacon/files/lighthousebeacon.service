@@ -1,0 +1,15 @@
+[Unit]
+Description=Lighthouse Eth2 Client Beacon Node
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=lighthouse
+Group=lighthouse
+Type=simple
+Restart=always
+RestartSec=5
+ExecStart=/chaindata/lighthouse/lighthouse bn --network mainnet --staking --datadir /chaindata/lighthouse --eth1-endpoints http://localhost:8545,https://rpc.slock.it/mainnet --http-address 0.0.0.0 --http-allow-origin * --metrics
+
+[Install]
+WantedBy=multi-user.target

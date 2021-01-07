@@ -1,0 +1,5 @@
+- hosts: "{{ playbook_hosts | default('servers') }}"
+  roles:
+    - role: lighthousebeacon
+      become: yes
+      when: client == 'lighthouse'

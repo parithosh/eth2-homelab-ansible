@@ -1,0 +1,66 @@
+---
+# tasks file for lighthousebeacon
+
+- name: create exporter group
+  group:
+    name: lighthouse
+    state: present
+
+- name: create exporter user
+  user:
+    name: lighthouse
+    state: present
+    group: lighthouse
+    shell: "/sbin/nologin"
+
+- name: create directory for chaindata
+  file:
+    path: /chaindata/lighthouse
+    state: directory
+    mode: '777'
+
+- name: Stop lighthouse service
+  ignore_errors: yes
+  systemd:
+    state: stopped
+    name: lighthousebeacon
+
+- name: Download and extract lighthouse
+  unarchive:
+    src: "{{ client_download_url }}"
+    dest: /chaindata/lighthouse
+    remote_src: yes
+    keep_newer: yes
+
+- name: copy systemd service
+  copy:
+    src: files/lighthousebeacon.service
+    dest: /etc/systemd/system/lighthousebeacon.service
+
+- name: Recursively change ownership of a directory
+  file:
+    path: /chaindata/lighthouse/
+    state: directory
+    recurse: yes
+    owner: lighthouse
+    group: lighthouse
+
+- name: reload systemd
+  systemd:
+    daemon_reload: yes
+
+- name: enable lighthouse
+  systemd:
+    name: lighthousebeacon
+    enabled: yes
+    masked: no
+
+- name: Stop lighthouse service
+  systemd:
+    state: stopped
+    name: lighthousebeacon
+
+- name: Start lighthouse service
+  systemd:
+    state: started
+    name: lighthousebeacon
