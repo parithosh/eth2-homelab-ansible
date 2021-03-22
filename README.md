@@ -6,6 +6,7 @@ mainnet.
 
 This repository contains an ansible playbook that can be used to perform the following:
 - Setup a nethermind node
+- Setup a lighthouse beacon node
 
 ## Requirements: 
 - A machine with ansible installed (https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html)
