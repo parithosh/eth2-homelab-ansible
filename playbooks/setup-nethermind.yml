@@ -1,4 +1,4 @@
-- hosts: "{{ playbook_hosts | default('servers') }}"
+- hosts: "{{ playbook_hosts | default('all') }}"
   roles:
     - role: nethermind-node
       become: yes
