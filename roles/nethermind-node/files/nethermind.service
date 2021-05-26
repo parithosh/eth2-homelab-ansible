@@ -5,7 +5,8 @@ After=network.target
 [Service]
 User=nethermind
 WorkingDirectory=/chaindata/nethermind
-ExecStart=/chaindata/nethermind/Nethermind.Runner
+#ExecStart=/chaindata/nethermind/Nethermind.Runner  --config mainnet --Network.MaxActivePeers 25 --JsonRpc.Enabled true --JsonRpc.Host 0.0.0.0
+ExecStart=/chaindata/nethermind/Nethermind.Runner --config mainnet_pruned
 Restart=on-failure
 LimitNOFILE=1000000
 

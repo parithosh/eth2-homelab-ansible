@@ -54,35 +54,38 @@
     src: files/nethermind.service
     dest: /etc/systemd/system/nethermind.service
 
-- name: "Enable JsonRPC in mainnet.cfg"
-  shell: jq '.JsonRpc.Enabled = true' /chaindata/nethermind/configs/mainnet.cfg | sponge /chaindata/nethermind/configs/mainnet.cfg
+- name: "Enable JsonRPC in mainnet_pruned.cfg"
+  shell: jq '.Network.ActivePeersMaxCount = 25' /chaindata/nethermind/configs/mainnet_pruned.cfg | sponge /chaindata/nethermind/configs/mainnet_pruned.cfg
 
-- name: "Enable JsonRPC from host in mainnet.cfg"
-  shell: jq '.JsonRpc.Host = "0.0.0.0"' /chaindata/nethermind/configs/mainnet.cfg | sponge /chaindata/nethermind/configs/mainnet.cfg
+- name: "Enable JsonRPC in mainnet_pruned.cfg"
+  shell: jq '.JsonRpc.Enabled = true' /chaindata/nethermind/configs/mainnet_pruned.cfg | sponge /chaindata/nethermind/configs/mainnet_pruned.cfg
 
-- name: "Change metrics name in mainnet.cfg"
-  shell: jq '.Metrics.NodeName = "proxmox-nethermind-01"' /chaindata/nethermind/configs/mainnet.cfg | sponge /chaindata/nethermind/configs/mainnet.cfg
+- name: "Enable JsonRPC from host in mainnet_pruned.cfg"
+  shell: jq '.JsonRpc.Host = "0.0.0.0"' /chaindata/nethermind/configs/mainnet_pruned.cfg | sponge /chaindata/nethermind/configs/mainnet_pruned.cfg
 
-- name: "Enable metrics in mainnet.cfg"
-  shell: jq '.Metrics.Enabled = true' /chaindata/nethermind/configs/mainnet.cfg | sponge /chaindata/nethermind/configs/mainnet.cfg
+- name: "Change metrics name in mainnet_pruned.cfg"
+  shell: jq '.Metrics.NodeName = "proxmox-nethermind-beacon"' /chaindata/nethermind/configs/mainnet_pruned.cfg | sponge /chaindata/nethermind/configs/mainnet_pruned.cfg
 
-- name: "Enable DownloadBodiesInFastSync in mainnet.cfg"
-  shell: jq '.Sync.DownloadBodiesInFastSync = true' /chaindata/nethermind/configs/mainnet.cfg | sponge /chaindata/nethermind/configs/mainnet.cfg
+- name: "Enable metrics in mainnet_pruned.cfg"
+  shell: jq '.Metrics.Enabled = true' /chaindata/nethermind/configs/mainnet_pruned.cfg | sponge /chaindata/nethermind/configs/mainnet_pruned.cfg
 
-- name: "Enable DownloadReceiptsInFastSync in mainnet.cfg"
-  shell: jq '.Sync.DownloadReceiptsInFastSync = true' /chaindata/nethermind/configs/mainnet.cfg | sponge /chaindata/nethermind/configs/mainnet.cfg
+#- name: "Enable DownloadBodiesInFastSync in mainnet.cfg"
+#  shell: jq '.Sync.DownloadBodiesInFastSync = true' /chaindata/nethermind/configs/mainnet.cfg | sponge /chaindata/nethermind/configs/mainnet.cfg
 
-- name: "Enable fast sync in mainnet.cfg"
-  when: sync_mode is undefined or sync_mode == "fast"
-  shell: jq '.Sync |= . + {"FastSync":"true"}' /chaindata/nethermind/configs/mainnet.cfg | sponge /chaindata/nethermind/configs/mainnet.cfg
+#- name: "Enable DownloadReceiptsInFastSync in mainnet.cfg"
+#  shell: jq '.Sync.DownloadReceiptsInFastSync = true' /chaindata/nethermind/configs/mainnet.cfg | sponge /chaindata/nethermind/configs/mainnet.cfg
 
-- name: "Enable Sync.AncientBodiesBarrier in mainnet.cfg"
-  when: sync_mode is undefined or sync_mode == "fast"
-  shell: jq '.Sync |= . + {"Sync.AncientBodiesBarrier":"11052984"}' /chaindata/nethermind/configs/mainnet.cfg | sponge /chaindata/nethermind/configs/mainnet.cfg
+#- name: "Enable fast sync in mainnet_pruned.cfg"
+#  when: sync_mode is undefined or sync_mode == "fast"
+#  shell: jq '.Sync |= . + {"FastSync":"true"}' /chaindata/nethermind/configs/mainnet_pruned.cfg | sponge /chaindata/nethermind/configs/mainnet_pruned.cfg
 
-- name: "Enable Sync.AncientReceiptsBarrier in mainnet.cfg"
-  when: sync_mode is undefined or sync_mode == "fast"
-  shell: jq '.Sync |= . + {"Sync.AncientReceiptsBarrier":"11052984"}' /chaindata/nethermind/configs/mainnet.cfg | sponge /chaindata/nethermind/configs/mainnet.cfg
+#- name: "Enable Sync.AncientBodiesBarrier in mainnet.cfg"
+#  when: sync_mode is undefined or sync_mode == "fast"
+#  shell: jq '.Sync |= . + {"Sync.AncientBodiesBarrier":"11052984"}' /chaindata/nethermind/configs/mainnet.cfg | sponge /chaindata/nethermind/configs/mainnet.cfg
+
+#- name: "Enable Sync.AncientReceiptsBarrier in mainnet.cfg"
+#  when: sync_mode is undefined or sync_mode == "fast"
+#  shell: jq '.Sync |= . + {"Sync.AncientReceiptsBarrier":"11052984"}' /chaindata/nethermind/configs/mainnet.cfg | sponge /chaindata/nethermind/configs/mainnet.cfg
 
 #- name: "Enable beam sync in mainnet.cfg"
 #  when: sync_mode is defined and sync_mode == "beam"
@@ -115,4 +118,17 @@
   systemd:
     state: started
     name: nethermind
+
+- name: Run push-gateway for instances to push metrics to
+  docker_container:
+    name: pushgateway
+    image: prom/pushgateway
+    restart_policy: unless-stopped
+    network_mode: bridge
+    exposed_ports:
+      - 9091
+    ports:
+      - "9091:9091"
+    state: started
+
 
