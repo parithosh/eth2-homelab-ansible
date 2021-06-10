@@ -9,7 +9,7 @@ Group=lighthouse
 Type=simple
 Restart=always
 RestartSec=5
-ExecStart=/chaindata/lighthouse/lighthouse bn --network mainnet --staking --datadir /chaindata/lighthouse --eth1-endpoints http://localhost:8545,https://rpc.slock.it/mainnet --http-address 0.0.0.0 --http-allow-origin * --metrics --slasher --slasher-history-length 256 --slasher-max-db-size 12 --debug-level debug
+ExecStart=/chaindata/lighthouse/lighthouse bn --network mainnet --staking --datadir /chaindata/lighthouse --eth1-endpoints http://localhost:8545,https://mainnet.infura.io/v3/adca220a9a5e40a592ccb71083f140aa --http-address 0.0.0.0 --http-allow-origin * --metrics --slasher --slasher-history-length 256 --slasher-max-db-size 12 --debug-level info
 
 [Install]
 WantedBy=multi-user.target
